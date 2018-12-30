@@ -188,8 +188,6 @@ class admincoursecontroller extends Controller
                     );
                     $data['insert'] = true;
             }
-       
-        
         return $data;
     }
 }

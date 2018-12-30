@@ -231,4 +231,67 @@ class adminsessioncontroller extends Controller
     }
     return $data;
 }
+
+
+    public function viewsessionsection_ajax()
+        {
+            $sections = DB::table('sections')->orderBy('name','asc')->distinct()->get();
+            $teacher = DB::table('users')->where('active',1)->where('teacher',1)->get();
+
+            if(count($sections)>0)
+            {
+                $data['sectionhasdata'] = true;
+                $data['sections'] = $sections;
+                $data['teachers'] = $teacher;
+            }
+            else
+            {
+                $data['sectionhasdata'] = false;
+            }
+            return $data;
+        }
+
+        public function saveselectedsection_ajax(Request $request)
+        {
+            $section_id = $request->input('section');
+            $advisor_id = $request->input('advisor');
+            $month = $request->input('month');
+            $year = $request->input('year');
+
+            $exist = DB::table('sessions')
+                    ->where('month',$month)
+                    ->where('year',$year)
+                    ->first();
+            if($exist)
+            {
+                $data['insert'] = false;
+            }
+            else
+            {
+                DB::table('sessions')
+                    ->where('active',1)
+                    ->update(['active' =>0]);
+                DB::table('sessions')->insert(
+                    [
+                        'year' => $year,
+                        'month'=>$month,
+                        'active'=>1,
+                    ]
+                    );
+                $data['insert'] = true;
+                DB::table('sections')
+                    ->update(['session_id' => null]);
+            $active_session = DB::table('sessions')->where('active',1)->first();
+            if($section_id)
+            {
+                for($i=0;$i<count($section_id);$i++)
+                {
+                    DB::table('sections')
+                        ->where('id',$section_id[$i])
+                        ->update(['session_id' => $active_session->id,'advisor_id' => $advisor_id[$i]]);
+                }
+            }
+        }
+        return $data;
+    }
 }

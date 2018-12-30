@@ -32,7 +32,7 @@ Session
         <button type="button" class="btn btn-primary" style="float: right" data-toggle="modal" data-target="#myModal" onclick="setsemandtea()">Add Section</button>
         <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#overview" onclick="showoverview()">Overview</a></li>
-            <li><a data-toggle="tab" href="#edit">Add Session</a></li>
+            <li><a data-toggle="tab" href="#edit" onclick="viewsessionsection()">Add Session</a></li>
             <li><a data-toggle="tab" href="#subject" onclick="assignteacher()">Assign Teacher</a></li>
             <li><a data-toggle="tab" href="#update" onclick="showassignedteacher()">Update Assigned Teacher</a></li>
             <li><a data-toggle="tab" href="#update_advisor" onclick="showassignedadvisor()">Update Assigned Advisor</a></li>
@@ -65,7 +65,7 @@ Session
                                     <option value='January'>Janaury</option>
                                     <option value='June'>June</option>
                                 </select> </span><span class="year">Year: </span><span><select id="selectElementId" class="drop" name="year"></select></span>
-                            <span><button class="btn btn-primary" data-toggle="modal" data-target="#section" type="button" name="showsection" onclick="section()">Add section and advisor</button></span>
+                            <span><button class="btn btn-primary" data-toggle="modal" data-target="#section" type="button" name="showsection">Add section and advisor</button></span>
                             <br />
                             <span class="check" style="margin-left: 5%;margin-top: 5%;"><input type="checkbox" checked></span><span class="markas">Mark as active session</span>
                         </div>
@@ -78,6 +78,7 @@ Session
                                         </div>
                                         <div class="modal-body" style="max-height: 75%; overflow-y: auto;">
                                             <!-- Body of section and advisor set -->
+                                            <div id="sectionmodalbody"></div>
                                             <table class=" table sectiontable">
                                                 <thead>
                                                     <tr>
@@ -92,13 +93,27 @@ Session
                                             </table>
                                         </div>
                                         <div class="modal-footer">
-                                            <center> <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
+                                            <center> <button type="submit" class="btn btn-success" onclick="createsession()"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
                                             </center>
                                         </div>
                                     </div>
                                 </div>
                             </div>
             </div>
+
+            <script>
+                var min = new Date().getFullYear(),
+                    max = min + 2,
+                    select = document.getElementById('selectElementId');
+
+                for (var i = min; i <= max; i++) {
+                    var opt = document.createElement('option');
+                    opt.value = i;
+                    opt.innerHTML = i;
+                    select.appendChild(opt);
+                }
+
+            </script>
             <!-- ASSIGN TEACHER TAB -->
             <div id="subject" class="tab-pane fade" style="background: #fff">
                     <!-- Body of section and advisor set -->
@@ -229,7 +244,10 @@ Session
         var n = document.getElementById('errmsg');
         n.style.display = 'none';
     }
-
+    function hidemodalmsg()
+    {
+        document.getElementById('sectionmodalbody').style.display='none';
+    }
     function sup(name)
     {
         var sup;
@@ -509,6 +527,114 @@ function save_section()
         document.getElementById('errmsg').innerHTML= errors;
         document.getElementById('errmsg').style.display='block';
         var hide = setTimeout(hideerrmsg,2000);
+    }
+}
+
+function viewsessionsection()
+{
+    $.ajax({
+        url:'viewsessionsection',
+        method:'get',
+        success:function(data)
+        {
+           if(data['sectionhasdata'] === true)
+           {
+               var tbodyofsectionmodal = document.getElementById('sectiondata');
+               var msgofsectionmodalbody = document.getElementById('sectionmodalbody');
+               var sections = data['sections'];
+               var teacher = data['teachers'];
+               var table='';
+               for(var i =0;i<sections.length;i++)
+               {
+                var tablerowstart = "<tr><td><input value="+sections[i].id+" type='checkbox' name='all_section[]'></td><td>"+sections[i].name+"</td><td><select id="+sections[i].id+">";
+                var tablerowend = "</select></td></tr>"
+                var option='';
+                for(var j=0;j<teacher.length;j++)
+                {
+                    option = option + "<option value="+teacher[j].user_id+">"+teacher[j].name+"</option>"
+                }
+                table =table+ tablerowstart+option+tablerowend;
+               }
+               tbodyofsectionmodal.innerHTML = table;
+           }
+           else
+           {
+            var errors = "Could not find any previous section";
+            msgofsectionmodalbody.innerHTML= errors;
+            msgofsectionmodalbody.style.display='block';
+           // var hide = setTimeout(hideerrmsg,10000);
+           }
+        },
+        error:function(e)
+        {
+            console.log(e);
+        },
+    });
+}
+
+function createsession()
+{
+    $.ajaxSetup(
+            {
+              headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+              }
+           );
+    var month = document.getElementById('gMonth2').value;
+    var year  = document.getElementById('selectElementId').value;
+    var msgofsectionmodalbody = document.getElementById('sectionmodalbody');
+    var all_sections = document.getElementsByName('all_section[]');
+    var checked_section = [];
+    var count_helper=0;
+    var value_of_advisor = [];
+
+    if(month !== '0')
+    {
+        for(var i=0;i<all_sections.length;i++)
+        {
+            if(all_sections[i].checked)
+            {
+                checked_section[count_helper] = all_sections[i].value;
+                value_of_advisor[count_helper] = document.getElementById(all_sections[i].value).value;
+                count_helper++;
+            }
+        }
+        $.ajax(
+            {
+                url:'saveselectedsection',
+                method:'post',
+                data:{section:checked_section,advisor:value_of_advisor,month:month,year:year},
+                success:function(data)
+                {
+                   if(data['insert'] === true)
+                   {
+                       $('#section').modal('toggle');
+                       var errors = "<div class='alert alert-success'><strong>Success!</strong>&nbsp;Successfully Created Session. </div>";
+                        document.getElementById('msg').innerHTML= errors;
+                        document.getElementById('msg').style.display='block';
+                        var hide = setTimeout(hidemsg,4000);
+                   }
+                   else
+                   {
+                    var errors = '<p style="color:red;">Session Already Exist.</p>';
+                    msgofsectionmodalbody.innerHTML= errors;
+                    msgofsectionmodalbody.style.display='block';
+                    var hide = setInterval(hidemodalmsg,4000);
+
+                   }
+                },
+                error:function(e)
+                {
+                    console.log(e);
+                }
+            }
+        )
+    }
+    else
+    {
+        var errors = '<p style="color:red;">Please select Month</p>';
+        msgofsectionmodalbody.innerHTML= errors;
+        msgofsectionmodalbody.style.display='block';
+        var hide = setInterval(hidemodalmsg,4000);
     }
 }
 </script>

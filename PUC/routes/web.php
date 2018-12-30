@@ -33,4 +33,6 @@ Route::get('deletemodal/{id}','adminsessioncontroller@deletemodal_ajax');
 Route::post('deletesession/{id}','adminsessioncontroller@deletesession_ajax');
 Route::get('showsemestersandteachers','adminsessioncontroller@showsemestersandteachers_ajax');
 Route::post('save_section','adminsessioncontroller@save_section_ajax');
+Route::get('viewsessionsection','adminsessioncontroller@viewsessionsection_ajax');
+Route::post('saveselectedsection','adminsessioncontroller@saveselectedsection_ajax');
 //SESSION ENDS
