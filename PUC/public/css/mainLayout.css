@@ -1,0 +1,221 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.topbar
+{
+    width: 100%;
+    height: 35px;
+    background: #c9c9c9;
+    box-shadow: 5px 5px 18px #888888;
+}
+.topb {
+    
+}
+
+.logo {
+    height: 100%;
+    float: left;
+    color: #363738;
+    font-size: 25px;
+    margin-top: -20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.navigate {
+    float: right;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    
+    text-align: center;
+}
+.navigate li
+{
+    margin: 0;
+    padding-top: 10px; 
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    float: left;
+    margin-left: 3px;
+    transition: 0.4s;
+  
+}
+.notifications {}
+
+
+.notificationBubble {
+   
+    margin-top: -10px;
+    background: #2ee6b5;
+    font-size: 12px;
+    height: 18px;
+    width: 18px;
+    text-align: center;
+    cursor: pointer;
+    position: absolute;
+    border-radius: 50%;
+}
+
+#bell {
+    
+  
+
+}
+
+#poweroff {
+
+    
+}
+
+.topul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background: #555555;
+    margin-top: 35px;
+    color: aliceblue;
+    display: none;
+    width: 250px;
+    height: 200px;
+    margin-left: -150px;
+    transition: 0.5s;
+    border-radius: 4px;
+    overflow-y: auto;
+    opacity: 1;
+}
+
+.topul li {
+    height: 40px;
+    border-bottom: 1px solid #a39e9e;
+    text-align: center;
+    padding-top: 5px;
+}
+
+.notifications:hover .topul {
+    position: absolute;
+    display: block;
+    
+}
+.navigate li:hover i
+{
+    transform: rotate(15deg);
+}
+
+
+
+
+.Leftcontainer {
+    width: 180px;
+    background: #152039;
+    height: 95%;
+    float: left;
+    box-shadow: 5px 5px 18px #888888;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+
+}
+
+.topinfo {
+
+    height: 50px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    display: block;
+    padding-bottom: 15px;
+    border-bottom: 1px solid white;
+
+}
+
+.logoside {
+
+    background-image: url('Untitled.png');
+    background-position: center;
+    border-radius: 50%;
+}
+
+h2 {
+
+    color: #cecece;
+    font-size: 20px;
+    margin-top: 2px;
+    display: none;
+}
+
+.user {
+    color: #cecece;
+    margin-left: 15px;
+}
+
+.sideul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.optionsSide {
+    margin-left: 2px;
+    margin-top: 20px;
+}
+
+.sideul li {
+    color: #cecece;
+    padding: 15px 15px 40px 10px;
+    cursor: pointer;
+
+    border-left: none;
+    transition: 0.5s;
+}
+
+i {
+    float: left;
+
+}
+
+.text {
+    float: left;
+    margin-left: 25px;
+
+}
+
+.sideul li:hover {
+    background: #d8d8d8;
+    color: #2e2e2e;
+}
+
+.spacer {
+    height: 10px;
+}
+
+.Rightcontainer  {
+     margin: 0;
+    float: left;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+    height: auto;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-track-piece {
+    background: #152039;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #323f5d;
+}
+
+.active {
+    background: #617c57;
+
+}
