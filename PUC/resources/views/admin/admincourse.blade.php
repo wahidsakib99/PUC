@@ -183,10 +183,12 @@ Course
             type:'get',
             success:function(data)
             {
+                var semester_ul  =document.getElementById('semesters');
                 var dropdownsemester = document.getElementById('value_of_semester');
                 var option = '';
                if(data['nodata'] === false)
-               {
+               {    
+                   var list='';
                    var semesters_var = data['data'];
                    for(var i=0;i<semesters_var.length;i++)
                    {

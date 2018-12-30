@@ -281,6 +281,8 @@ class adminsessioncontroller extends Controller
                 $data['insert'] = true;
                 DB::table('sections')
                     ->update(['session_id' => null]);
+                DB::table('teachers')
+                    ->update(['session_id' => null]);
             $active_session = DB::table('sessions')->where('active',1)->first();
             if($section_id)
             {
@@ -294,4 +296,251 @@ class adminsessioncontroller extends Controller
         }
         return $data;
     }
+
+    public function assignteacher_ajax(Request $request)
+    {
+        if($request->ajax())
+        {
+            $active_session = DB::table('sessions')
+                ->where('active',1)
+                ->first();
+            if($active_session)
+            {
+                $subjects = DB::table('subjects')
+                    ->join('semesters','semesters.id','=','subjects.semester_id')
+                    ->join('sections','sections.semester_id','=','semesters.id')
+                    ->where('sections.session_id',$active_session->id)
+                    ->select('subjects.id as subid','subjects.name as subname','sections.name as secname','sections.id as secid')
+                    ->orderBy('sections.name','asc')
+                    ->get();
+                $teacher = DB::table('users')
+                    ->where('active',1)
+                    ->where('teacher',1)
+                    ->get();
+                $data['session'] = true;
+                $data['subjects'] = $subjects;
+                $data['teachers'] = $teacher;
+                return $data;
+            }
+            else {
+                $data['session'] = false;
+                return $data;
+            }
+        }
+    }
+
+    public function saveassignedteacher_ajax(Request $request)
+    {
+        $sections = $request->input('section');
+        $subject  = $request->input('subjects');
+        $teacher  = $request->input('teacher');
+        $failed = array();
+        $c = 0;//FOR COUNT
+        if($subject)
+        {
+            
+            $data['noinput'] = false;
+            $active_session = DB::table('sessions')->where('active',1)->first();
+            for($i=0;$i<count($subject);$i++)
+            {
+                $exist = DB::table('teachers')
+                        ->where('section_id',$sections[$i])
+                        ->where('subject_id',$subject[$i])
+                        ->first();
+                if($exist)
+                {
+                    $exist_all = DB::table('teachers')
+                            ->where('section_id',$sections[$i])
+                            ->where('subject_id',$subject[$i])
+                            ->where('session_id',$active_session->id)
+                            ->where('teacher_id',$teacher[$i])
+                            ->first();
+                    if($exist_all)
+                    { //EVERYTHING EXIST,,QUIT 
+                        $failed[$c] = $subject[$i].'->'.$sections[$i].'->'.$teacher[$i];
+                        $c++;
+                        
+                    }
+                    else
+                    {
+                        //Subject exist need to update
+                        DB::table('teachers')
+                            ->where('id',$exist->id)
+                            ->update(['teacher_id' => $teacher[$i], 'session_id' => $active_session->id]);
+                            $data['insert'] = true;
+                    }
+                    
+                }
+                else
+                {
+                    //Subject does not exist need to insert
+                    DB::table('teachers')->insert(
+                        [
+                            'section_id' => $sections[$i],
+                            'subject_id' => $subject[$i],
+                            'teacher_id' => $teacher[$i],
+                            'session_id' => $active_session->id,
+                        ]
+                        );
+                        $data['insert'] = true;
+                }
+            }
+        }
+        else
+        {
+            $data['noinput'] = true;
+        }
+        $data['failed'] = $failed;
+        return $data;
+    }
+
+    public function showassignedteacher_ajax()
+    {
+        $active_session = DB::table('sessions')->where('active',1)->first();
+        if($active_session)
+        { 
+            $data['nosession'] = false;
+            $datas = DB::table('teachers') 
+                    ->join('subjects','subjects.id','=','teachers.subject_id')
+                    ->join('users','users.user_id','=','teachers.teacher_id')
+                    ->join('sections','sections.id','=','teachers.section_id')
+                    ->select('teachers.id','subjects.name as subname','sections.name as secname','users.name as teachername')
+                    ->where('teachers.session_id',$active_session->id)
+                    ->orderBy('secname','asc')
+                    ->get();
+            $teachers = DB::table('users')
+                    ->where('active',1)
+                    ->where('teacher',1)
+                    ->get();
+            if(count($datas)>0)
+            {
+                $data['failed'] = false;
+                $data['data'] = $datas;
+                $data['teachers'] = $teachers;
+            }
+            else
+            {
+                $data['failed'] =true;
+            }
+        }
+        else
+        {
+            $data['nosession'] =true;
+        }
+
+        return $data;
+    }
+
+    public function deleteassignedteacher_ajax($id)
+    {
+        $delete = DB::table('teachers')
+            ->where('id',$id)
+            ->update(['session_id' =>null]);
+         $data['delete'] = true;
+         return $data;
+
+    }
+
+    public function updateselectedteacher_ajax(Request $request)
+    {
+        if($request->ajax())
+        {
+            $id = $request->input('id');
+            $teacher_id =$request->input('teacher');
+
+            for ($i=0; $i < count($id); $i++) { 
+                DB::table('teachers')
+                    ->where('id',$id[$i])
+                    ->update(['teacher_id' => $teacher_id[$i]]);
+            }
+            $data['update'] = true;
+           
+        }
+        else 
+            $data['update'] = false;
+            return $data;
+    }
+    
+    public function updatedadvisor_ajax()
+    {
+ $active_session = DB::table('sessions')->where('active',1)->first();
+        if($active_session)
+        {
+            $data['nosession'] = false;
+            $datas = DB::table('sections')
+                ->join('semesters','semesters.id','=','sections.semester_id')
+                ->join('users','users.user_id','=','sections.advisor_id')
+                ->where('sections.session_id',$active_session->id)
+                ->select('sections.id','sections.name as secname','users.name as advisorname')
+                ->get();
+            $unmarked_data = DB::table('sections')
+                ->join('semesters','semesters.id','=','sections.semester_id')
+                ->where('sections.session_id',null)
+                ->select('sections.id','sections.name as secname')
+                ->get();
+            $teachers = DB::table('users')
+                ->where('active',1)
+                ->where('teacher',1)
+                ->get();
+        
+            if (count($datas)>0 || count($unmarked_data)>0) 
+            {
+                $data['nodata'] = false;
+                $data['data'] = $datas;
+                $data['teachers'] = $teachers;
+                $data['unmarked'] = $unmarked_data;
+            }
+            else
+                $data['nodata'] = true;
+           
+            
+        }
+        else {
+            $data['nosession'] = true;
+        }
+
+        return $data;
+
+    }
+
+    public function deleteassignedadvisor_ajax($id)
+    {
+        $delete = DB::table('sections')
+        ->where('id',$id)
+        ->update(['session_id' => null]);
+     $data['delete'] = true;
+     return $data;
+    }
+
+    public function enablesectiondadvisor_ajax($id, Request $request)
+    {
+        $active_session = DB::table('sessions')->where('active',1)->first();
+        $teacher = $request->input('teacher');
+        DB::table('sections')
+            ->where('id',$id)
+            ->update(['advisor_id' => $teacher,'session_id' => $active_session->id]);
+        $data['insert'] = true;
+        return $data;
+    }
+
+    public function updateselectedadvisor_ajax(Request $request)
+    {
+        if($request->ajax())
+        {
+            $id = $request->input('id');
+            $advisor_id =$request->input('advisor');
+
+            for ($i=0; $i < count($id); $i++) { 
+                DB::table('sections')
+                    ->where('id',$id[$i])
+                    ->update(['advisor_id' => $advisor_id[$i]]);
+            }
+            $data['update'] = true;
+           
+        }
+        else 
+            $data['update'] = false;
+            return $data;
+    } 
+
 }

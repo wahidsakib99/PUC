@@ -42,7 +42,7 @@ Session
         <div class="tab-content"> <!-- TAB CONTENT STARTS HERE -->
             <!-- OVERVIEW TAB STARTS HERE -->
             <div id="overview" class="tab-pane fade in active" style="background: #fff">
-                    <div class="table-responsive" style="overflow-y:auto;">
+                    <div class="table-responsive" style="overflow-y:auto; max-height: 73%">
                         <table id="mytable" class="table table-bordred table-striped">
                             <thead>
                                 <th>Session</th>
@@ -117,7 +117,8 @@ Session
             <!-- ASSIGN TEACHER TAB -->
             <div id="subject" class="tab-pane fade" style="background: #fff">
                     <!-- Body of section and advisor set -->
-                    <table class="table assignteachertable" id="assignteacherndata">
+                <div class="table-responsive" style="overflow-y:auto; max-height: 73%;">
+                    <table class="table assignteachertable  table-bordred table-striped" id="assignteacherndata">
                         <thead>
                             <tr>
                                 <th>check</th>
@@ -130,13 +131,15 @@ Session
                             <!-- CALLED SECTION() TO SEND AJAX REQUEST  AT THE END OF THE FILE  -->
                         </tbody>
                     </table>
-                    <center> <button type="button" class="btn btn-success" id="savebutton1" onclick="save_section()"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
+                </div>
+                    <center> <button type="button" class="btn btn-success" id="savebutton1" onclick="save_assignteacher()"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
                     </center>
             </div>
             <!-- UPDATE ASSIGN TEACHER TAB  -->
             <div id="update" class="tab-pane fade" style="background: #fff">
                     <!-- Body of section and advisor set -->
-                    <table class="table" id="updateassignedteacher">
+                <div class="table-responsive" style="overflow-y:auto; max-height: 73%">
+                    <table class="table table-bordred table-striped" id="updateassignedteacher">
                         <thead>
                             <tr>
                                 <th><input type="checkbox"></th>
@@ -151,13 +154,15 @@ Session
                             <!-- CALLED SECTION() TO SEND AJAX REQUEST  AT THE END OF THE FILE  -->
                         </tbody>
                     </table>
-                    <center> <button type="button" class="btn btn-success" id="savebutton2" onclick="update_assignedteacher()"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
+                </div>
+                    <center> <button type="button" class="btn btn-success" id="savebutton2" onclick="update_assignedteacher()"><span class="glyphicon glyphicon-ok-sign"></span>Update</button>
                     </center>
                 </div>
                 <!-- UPDATE ADVISOR TAB  -->
                 <div id="update_advisor" class="tab-pane fade" style="background: #fff">
                         <!-- Body of section and advisor set -->
-                        <table class="table" id="updateassignedadvisor">
+                    <div class="table-responsive" style="overflow-y:auto; max-height: 73%">
+                        <table class="table table-bordred table-striped" id="updateassignedadvisor">
                             <thead>
                                 <tr>
                                     <th><input type="checkbox"></th>
@@ -171,7 +176,8 @@ Session
                                 <!-- CALLED SECTION() TO SEND AJAX REQUEST  AT THE END OF THE FILE  -->
                             </tbody>
                         </table>
-                        <center> <button type="button" class="btn btn-success" id="savebutton3" onclick="update_assignedadvisor()"><span class="glyphicon glyphicon-ok-sign"></span>Save</button>
+                    </div>
+                        <center> <button type="button" class="btn btn-success" id="savebutton3" onclick="update_assignedadvisor()"><span class="glyphicon glyphicon-ok-sign"></span>Update</button>
                         </center>
                 </div>
                 <!-- MODAL FOR ADDING NEW SECTION  -->
@@ -496,7 +502,9 @@ function save_section()
                             var errors = "<div class='alert alert-success'><strong>Success!</strong>&nbsp;Successfully Created Section. </div>";
                             document.getElementById('msg').innerHTML= errors;
                             document.getElementById('msg').style.display='block';
+                            showassignedadvisor();
                             var hide = setTimeout(hidemsg,4000);
+                            
                         }
                         else
                         {
@@ -637,4 +645,479 @@ function createsession()
         var hide = setInterval(hidemodalmsg,4000);
     }
 }
+
+    var sections = [];//THIS VARIABLE CREATED FOR TRACKING SECTION ID WHEN USER ASSIGNING TEACHER
+        function assignteacher()
+        {
+            $.ajax(
+                {
+                    url: '/assignteacher',
+                    method: 'get',
+
+                    success:function(data)
+                    {
+                        var session = data['session'];
+                        if(session === true)
+                        {
+                            var subjects =data['subjects'];
+                            var teachers = data['teachers'];
+                            var assignteachertbody = document.getElementById('assignteachertbody');
+                            var option = '';
+                            var table = '';
+                            for(var i=0;i<subjects.length;i++)
+                            {
+                                sections[i] = subjects[i].secid;
+                                var tablerowstart = "<tr><td><input type='checkbox' value="+subjects[i].subid+" name='subjects_check[]'></td><td>"+subjects[i].subname+"</td><td>"+subjects[i].secname+"</td><td><select name='teacher[]' class='drop'>";
+                                var tablerowend = "</select></td></tr>";
+                                for(var j=0; j<teachers.length;j++)
+                                {
+                                    option = option + "<option value="+teachers[j].user_id+">"+teachers[j].name+"</option>"
+                                }
+                                table = table+tablerowstart +option+tablerowend;
+                            }
+                            assignteachertbody.innerHTML = table;  
+                            document.getElementById('assignteacherndata').style.display='';
+                            document.getElementById('savebutton1').style.display=''; 
+                        }
+                        else
+                        {
+                            var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Have you forgotten to enable session in OVERVIEW TAB? </div>";
+                            document.getElementById('msg').innerHTML=errors;
+                            document.getElementById('msg').style.display='block';
+                            document.getElementById('msg').style.transition='3s';
+                            document.getElementById('assignteacherndata').style.display='none';
+                            document.getElementById('savebutton1').style.display='none';
+                            var hide = setInterval(hidemsg,4000);
+                        }
+                    },
+                    error:function()
+                    {
+                        console.log('failed');
+                    },
+                }
+            );
+        }
+
+function save_assignteacher()
+{
+    $.ajaxSetup(
+            {
+              headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+              }
+           );
+    var all_subjects = document.getElementsByName('subjects_check[]');
+    var all_teacher  = document.getElementsByName('teacher[]');
+    var checked_sub = [];
+    var teacher= [];
+    var section_id =[];
+    var count_helper = 0;
+    for(var i=0;i<all_subjects.length;i++)
+    {
+        if(all_subjects[i].checked)
+        {
+            checked_sub[count_helper] = all_subjects[i].value;
+            teacher[count_helper] = all_teacher[i].value;
+            section_id[count_helper] = sections[i];
+            count_helper++;
+        }
+    }
+
+    $.ajax(
+        {
+            url:'saveassignedteacher',
+            method:'post',
+            data:{subjects:checked_sub,teacher:teacher,section:section_id},
+            success:function(data)
+            {
+                if(data['noinput'] === false)
+                {
+                    if(data['insert'] === true)
+                    {
+                    var errors = "<div class='alert alert-success'><strong>Success!</strong>&nbsp;Successfully assigned. </div>";
+                    document.getElementById('msg').innerHTML=errors;
+                    document.getElementById('msg').style.display='block';
+                    document.getElementById('msg').style.transition='3s';
+                    var hide = setInterval(hidemsg,4000); 
+                    }
+                    var failed = data['failed'];
+                    for(var i=0;i<failed.length;i++)
+                    {
+                    var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;To insert"+failed[i]+". </div>";
+                    document.getElementById('msg').innerHTML=errors;
+                    document.getElementById('msg').style.display='block';
+                    document.getElementById('msg').style.transition='3s';
+                    }
+                    var hide = setInterval(hidemsg,4000);
+                    //assignteacher(); 
+                }
+                else
+                {
+                    var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Mark At least one. </div>";
+                    document.getElementById('msg').innerHTML=errors;
+                    document.getElementById('msg').style.display='block';
+                    document.getElementById('msg').style.transition='3s';
+                    var hide = setInterval(hidemsg,4000); 
+                }
+            },
+            error:function(e)
+            {
+                console.log(e);
+            },
+        }
+    );
+}
+
+function showassignedteacher()
+{
+    $.ajax(
+                {
+                    url: '/showassignedteacher',
+                    method:'get',
+                    success:function(data)
+                    {
+                        var no_session = data['nosession'];
+                        if(no_session === false)
+                        {
+                            if(data['failed'] === false)
+                            {
+                                var tablerow_start='';
+                                var tblcontent =' ';
+                                var tablerow_ends = ' ';
+                                var table_data = ' ';
+                                var all_data = data['data'];
+                                var teachers = data['teachers'];
+                                var tbodyofupdateassignedteacher = document.getElementById('updateassignedteachertbody');
+                                for(var i=0;i<all_data.length;i++)
+                                {
+                                 tablerow_start = "<tr><td><input type='checkbox' name='updatesubjectsteacher[]' value="+all_data[i].id+"></td><td>"+all_data[i].subname+"</td><td>"+all_data[i].secname+"</td><td>"+all_data[i].teachername+"</td><td><select class='"+all_data[i].id+" drop'>";
+                                 tablerow_ends = "</select></td><td><button class='btn btn-danger' onclick='deleteassignedteacher("+all_data[i].id+")'>Delete</button></td></tr>";
+                                    for(var j =0;j<teachers.length;j++)
+                                    {
+                                        tblcontent = tblcontent + "<option value="+teachers[j].user_id+">"+teachers[j].name+"</option>";
+                                    }
+                                    table_data =' '+table_data+ tablerow_start+ tblcontent+ tablerow_ends+' ';
+                                }
+                                tbodyofupdateassignedteacher.innerHTML=table_data; 
+                            document.getElementById('updateassignedteacher').style.display='';
+                            document.getElementById('savebutton2').style.display='';
+                              
+                            }
+                            else
+                            {
+                                //data['failed] === true
+                            var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Please Assign Teacher First !!! </div>";
+                            document.getElementById('msg').innerHTML=errors;
+                            document.getElementById('msg').style.display='block';
+                            document.getElementById('msg').style.transitionDuration='all 3s';
+                            document.getElementById('updateassignedteacher').style.display='none';
+                            document.getElementById('savebutton2').style.display='none';
+                            var hide = setInterval(hidemsg,4000);
+                            }
+                        }
+                        else
+                        {
+                            //data['nosession] === true
+
+                            var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Have you forgotten to enable session in OVERVIEW TAB? </div>";
+                            document.getElementById('msg').innerHTML=errors;
+                            document.getElementById('msg').style.display='block';
+                            document.getElementById('msg').style.transitionDuration='all 3s';
+                            document.getElementById('updateassignedteacher').style.display='none';
+                            document.getElementById('savebutton2').style.display='none';
+                            var hide = setInterval(hidemsg,4000);
+                        }
+                        
+                    },
+                    error:function(e)
+                    {
+                        console.log(e);
+                    },
+                }
+            );
+}
+function deleteassignedteacher(id)
+        {
+            $.ajaxSetup(
+                        {
+                            headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+                        }
+                    );
+            $.ajax(
+                {
+                    url:'deleteassignedteacher/'+id,
+                    method:'post',
+                    success:function(data)
+                    {
+                        if(data['delete'] === true)
+                        {
+                           // document.getElementById('updateassignedteachertbody').removeChild('tr');
+                            showassignedteacher();
+                        }
+                    },
+                    error:function(e)
+                    {
+                        console.log(e);
+                    }
+                }
+            )
+        }
+
+   function update_assignedteacher()
+        {
+            var inp =document.getElementsByName('updatesubjectsteacher[]');
+            var checked = [];
+            var teacher_value = [];
+            var count_check=0;
+            for(var i =0;i<inp.length;i++)
+            {
+                if(inp[i].checked)
+                {
+                    checked[count_check] = inp[i].value;
+                    count_check++;
+                }
+            }
+            if(checked.length>0)
+            {
+                for(var i =0 ; i<checked.length;i++)
+                {
+                    teacher_value[i] = $('.'+checked[i]).val();
+                }
+                $.ajaxSetup(
+                            {
+                                headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+                            }
+                        );
+                $.ajax(
+                    {
+                        url:'/updateselectedteacher',
+                        method:'post',
+                    // beforeSend: function(xhr){xhr.setRequestHeader('X-CSRF-TOKEN', $("#token").attr('content'));},
+                        data:{id:checked, teacher:teacher_value},
+                        success:function(data)
+                        {
+                            if(data['update'] === true)
+                            {
+                                showassignedteacher();
+                                var errors = "<div class='alert alert-success'><strong>Success!</strong>&nbsp;Successfully Updated. </div>";
+                                document.getElementById('msg').innerHTML= errors;
+                                document.getElementById('msg').style.display='block';
+                                document.getElementById('msg').style.transitionDuration='all 3s';
+                                var hide = setInterval(hidemsg,4000);
+                            }
+                        },
+                        error:function(e)
+                        {
+                            console.log(e);
+                        }
+                        
+                    }
+                );
+        }
+        else
+        {
+                var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Please select at least one subject. </div>";
+                document.getElementById('msg').innerHTML= errors;
+                document.getElementById('msg').style.display='block';
+                document.getElementById('msg').style.transitionDuration='all 3s';
+                var hide = setInterval(hidemsg,4000);
+        }
+       
+        }
+
+        function showassignedadvisor()
+        {
+            $.ajax(
+                {
+                    url:'updatedadvisor',
+                    method:'get',
+                    success:function(data)
+                    {
+                       if(data['nosession'] === false)
+                       {
+                           var all_data = data['data'];
+                           var teachers = data['teachers']
+                           var table_data =' ';
+                           if(data['nodata']===false)
+                           {
+                               for(var i=0;i<data['data'].length;i++)
+                               {
+                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+all_data[i].id+"></td><td>"+all_data[i].secname+"</td><td>"+all_data[i].advisorname+"</td><td><select class='"+all_data[i].id+" drop'>";
+                                 tablerow_ends = "</select></td><td><button class='btn btn-danger' onclick='deleteassignedadvisor("+all_data[i].id+")'>Disable</button></td></tr>";
+                                 var tblcontent=' ';
+                                 for(var j =0;j<teachers.length;j++)
+                                    {
+                                        tblcontent = tblcontent + "<option value="+teachers[j].user_id+">"+teachers[j].name+"</option>";
+                                    }
+                                    table_data =' '+table_data+ tablerow_start+ tblcontent+ tablerow_ends+' ';
+                               }
+                              var unmark = data['unmarked'];
+                               for(var i=0;i<unmark.length;i++)
+                               {
+                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+unmark[i].id+"></td><td>"+unmark[i].secname+"</td><td>----------</td><td><select id='"+unmark[i].id+"' class='drop'>";
+                                tablerow_ends = "</select></td><td><button class='btn btn-success' onclick='enablesectiondadvisor("+unmark[i].id+")'>Enable</button></td></tr>";
+                                    for(var j =0;j<teachers.length;j++)
+                                    {
+                                        tblcontent = tblcontent + "<option value="+teachers[j].user_id+">"+teachers[j].name+"</option>";
+                                    }
+                                    table_data =' '+table_data+ tablerow_start+ tblcontent+ tablerow_ends+' ';
+                               }
+                              // console.log(table_data);
+                               document.getElementById('updateassignedadvisortbody').innerHTML=table_data;
+                               document.getElementById('updateassignedadvisor').style.display='';
+                                document.getElementById('savebutton3').style.display='';
+                           }
+                           else
+                           {
+                            document.getElementById('updateassignedadvisortbody').innerHTML='';
+                            var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;You Have not set any advisor</div>";
+                            document.getElementById('msg').innerHTML=errors;
+                            document.getElementById('msg').style.display='block';
+                            document.getElementById('msg').style.transitionDuration='all 3s';
+                            var hide = setInterval(hidemsg,4000);
+                           }
+                       }
+                       else
+                       {
+                            var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Have you forgotten to enable session in OVERVIEW TAB? </div>";
+                            document.getElementById('msg').innerHTML=errors;
+                            document.getElementById('msg').style.display='block';
+                            document.getElementById('msg').style.transitionDuration='all 3s';
+                            document.getElementById('updateassignedadvisor').style.display='none';
+                            document.getElementById('savebutton3').style.display='none';
+                            var hide = setInterval(hidemsg,4000);
+                       }
+                    },
+                    error:function(e)
+                    {
+                        console.log(e);
+                    }
+                }
+            );
+        }
+
+ function deleteassignedadvisor(id)
+    {
+          $.ajaxSetup(
+                        {
+                            headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+                        }
+                    );
+            $.ajax(
+                {
+                    url:'deleteassignedadvisor/'+id,
+                    method:'post',
+                    success:function(data)
+                    {
+                        if(data['delete'] === true)
+                        {
+                           // document.getElementById('updateassignedteachertbody').removeChild('tr');
+                            showassignedadvisor();
+                        }
+                    },
+                    error:function(e)
+                    {
+                        console.log(e);
+                    }
+                }
+            );
+        }   
+
+function enablesectiondadvisor(id)
+{
+    var teacher = document.getElementById(id).value;
+    $.ajaxSetup(
+                        {
+                            headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+                        }
+                    );
+    $.ajax(
+        {
+            url:'enablesectiondadvisor/'+id,
+            method:'post',
+            data:{teacher:teacher},
+            success:function(data)
+            {
+               if(data['insert'] === true)
+               {
+                   showassignedadvisor();
+               }
+               else
+               {
+                var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Have you forgotten to enable session in OVERVIEW TAB? </div>";
+                document.getElementById('msg').innerHTML=errors;
+                document.getElementById('msg').style.display='block';
+                document.getElementById('msg').style.transitionDuration='all 3s';
+                showassignedadvisor();
+                var hide = setInterval(hidemsg,4000);
+               }
+            },
+            error:function(e)
+            {
+                console.log(e);
+            },
+        }
+    )
+}
+
+        function update_assignedadvisor()
+        {
+            var inp =document.getElementsByName('updatesectionadvisor[]');
+            var checked = [];
+            var advisor_value = [];
+            var count_check=0;
+            for(var i =0;i<inp.length;i++)
+            {
+                if(inp[i].checked)
+                {
+                    checked[count_check] = inp[i].value;
+                    count_check++;
+                }
+            }
+            if(checked.length>0)
+            {
+                for(var i =0 ; i<checked.length;i++)
+                {
+                    advisor_value[i] = $('.'+checked[i]).val();
+                }
+                $.ajaxSetup(
+                            {
+                                headers:{'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')}
+                            }
+                        );
+                $.ajax(
+                    {
+                        url:'/updateselectedadvisor',
+                        method:'post',
+                    // beforeSend: function(xhr){xhr.setRequestHeader('X-CSRF-TOKEN', $("#token").attr('content'));},
+                        data:{id:checked, advisor:advisor_value},
+                        success:function(data)
+                        {
+                            if(data['update'] === true)
+                            {
+                                showassignedadvisor();
+                                var errors = "<div class='alert alert-success'><strong>Success!</strong>&nbsp;Successfully Updated. </div>";
+                                document.getElementById('msg').innerHTML= errors;
+                                document.getElementById('msg').style.display='block';
+                                document.getElementById('msg').style.transitionDuration='all 3s';
+                                var hide = setInterval(hidemsg,4000);
+                            }
+                        },
+                        error:function(e)
+                        {
+                            console.log(e);
+                        }
+                        
+                    }
+                );
+        }
+        else
+        {
+                var errors = "<div class='alert alert-danger'><strong>Failed!</strong>&nbsp;Please select at least one subject. </div>";
+                document.getElementById('msg').innerHTML= errors;
+                document.getElementById('msg').style.display='block';
+                document.getElementById('msg').style.transitionDuration='all 3s';
+                var hide = setInterval(hidemsg,4000);
+        }
+       
+        }
 </script>

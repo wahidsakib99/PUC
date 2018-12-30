@@ -21,7 +21,7 @@ class CreateTeachersTable extends Migration
             $table->foreign('teacher_id')->references('user_id')->on('users');
             $table->integer('section_id')->unsigned();
             $table->foreign('section_id')->references('id')->on('sections');
-            $table->integer('session_id')->unsigned();
+            $table->integer('session_id')->unsigned()->nullable();
             $table->foreign('session_id')->references('id')->on('sessions');
         });
     }

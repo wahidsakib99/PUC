@@ -35,4 +35,13 @@ Route::get('showsemestersandteachers','adminsessioncontroller@showsemestersandte
 Route::post('save_section','adminsessioncontroller@save_section_ajax');
 Route::get('viewsessionsection','adminsessioncontroller@viewsessionsection_ajax');
 Route::post('saveselectedsection','adminsessioncontroller@saveselectedsection_ajax');
+Route::get('/assignteacher','adminsessioncontroller@assignteacher_ajax');
+Route::post('saveassignedteacher','adminsessioncontroller@saveassignedteacher_ajax');
+Route::get('/showassignedteacher','adminsessioncontroller@showassignedteacher_ajax');
+Route::post('deleteassignedteacher/{id}','adminsessioncontroller@deleteassignedteacher_ajax');
+Route::post('/updateselectedteacher','adminsessioncontroller@updateselectedteacher_ajax');
+Route::get('updatedadvisor','adminsessioncontroller@updatedadvisor_ajax');
+Route::post('deleteassignedadvisor/{id}','adminsessioncontroller@deleteassignedadvisor_ajax');
+Route::post('enablesectiondadvisor/{id}','adminsessioncontroller@enablesectiondadvisor_ajax');
+Route::post('updateselectedadvisor','adminsessioncontroller@updateselectedadvisor_ajax');
 //SESSION ENDS
