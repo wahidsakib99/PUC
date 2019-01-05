@@ -15,6 +15,8 @@ class CreateUserRetakesTable extends Migration
     {
         Schema::create('user_retakes', function (Blueprint $table) {
             $table->increments('id');
+            $table->bigInteger('student_id')->unsigned();
+            $table->foreign('student_id')->references('user_id')->on('users');
             $table->integer('subject_id')->unsigned();
             $table->foreign('subject_id')->references('id')->on('subjects');
             $table->integer('session_id')->unsigned();

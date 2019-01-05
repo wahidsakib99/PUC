@@ -60,12 +60,12 @@ Session
             <div id="edit" class="tab-pane fade" style="background: #fff">
                     <h1>Add Session</h1>
                     <div style="margin-left: 5%; height: 200px; ">
-                            <span>Month: </span><span> <select id='gMonth2' class="drop" name="month">
+                            <span>Month: </span><span> <select id='gMonth2' class="form-control" name="month">
                                     <option value='0'>--Select Month--</option>
                                     <option value='January'>Janaury</option>
                                     <option value='June'>June</option>
-                                </select> </span><span class="year">Year: </span><span><select id="selectElementId" class="drop" name="year"></select></span>
-                            <span><button class="btn btn-primary" data-toggle="modal" data-target="#section" type="button" name="showsection">Add section and advisor</button></span>
+                                </select> </span><span class="year">Year: </span><span><select id="selectElementId" class="form-control" name="year"></select></span>
+                            <span><button class="btn btn-primary" data-toggle="modal" data-target="#section" type="button" name="showsection" style="margin-top: 10px;">Add section and advisor</button></span>
                             <br />
                             <span class="check" style="margin-left: 5%;margin-top: 5%;"><input type="checkbox" checked></span><span class="markas">Mark as active session</span>
                         </div>
@@ -191,14 +191,14 @@ Session
                                     </div>
                                     <div class="modal-body">
                                         <div class="form-group">
-                                            <select class="drop" name="semester" id="value_of_semester">
+                                            <select class="form-control" name="semester" id="value_of_semester">
                                             </select>
                                             <br />
                                             <br />
                                             <label for="usr">Add section name:</label>
                                             <input type="text" class="form-control" id="sec_name" name="section_name" required>
                                             <label for="usr">Set advisor :</label><br>
-                                            <select class="drop" name="advisor" id="advisor">
+                                            <select class="form-control" name="advisor" id="advisor">
                                             </select>
                                             <div id="errmsg" style="display: none; background: #facccc;color: #f04444;margin-top: 4px;padding: 4px 4px 4px 4px;">Please select semester</div>
                                         </div>
@@ -554,7 +554,7 @@ function viewsessionsection()
                var table='';
                for(var i =0;i<sections.length;i++)
                {
-                var tablerowstart = "<tr><td><input value="+sections[i].id+" type='checkbox' name='all_section[]'></td><td>"+sections[i].name+"</td><td><select id="+sections[i].id+">";
+                var tablerowstart = "<tr><td><input value="+sections[i].id+" type='checkbox' name='all_section[]'></td><td>"+sections[i].name+"</td><td><select id='"+sections[i].id+"' class='form-control'>";
                 var tablerowend = "</select></td></tr>"
                 var option='';
                 for(var j=0;j<teacher.length;j++)
@@ -667,7 +667,7 @@ function createsession()
                             for(var i=0;i<subjects.length;i++)
                             {
                                 sections[i] = subjects[i].secid;
-                                var tablerowstart = "<tr><td><input type='checkbox' value="+subjects[i].subid+" name='subjects_check[]'></td><td>"+subjects[i].subname+"</td><td>"+subjects[i].secname+"</td><td><select name='teacher[]' class='drop'>";
+                                var tablerowstart = "<tr><td><input type='checkbox' value="+subjects[i].subid+" name='subjects_check[]'></td><td>"+subjects[i].subname+"</td><td>"+subjects[i].secname+"</td><td><select name='teacher[]' class='form-control'>";
                                 var tablerowend = "</select></td></tr>";
                                 for(var j=0; j<teachers.length;j++)
                                 {
@@ -789,7 +789,7 @@ function showassignedteacher()
                                 var tbodyofupdateassignedteacher = document.getElementById('updateassignedteachertbody');
                                 for(var i=0;i<all_data.length;i++)
                                 {
-                                 tablerow_start = "<tr><td><input type='checkbox' name='updatesubjectsteacher[]' value="+all_data[i].id+"></td><td>"+all_data[i].subname+"</td><td>"+all_data[i].secname+"</td><td>"+all_data[i].teachername+"</td><td><select class='"+all_data[i].id+" drop'>";
+                                 tablerow_start = "<tr><td><input type='checkbox' name='updatesubjectsteacher[]' value="+all_data[i].id+"></td><td>"+all_data[i].subname+"</td><td>"+all_data[i].secname+"</td><td>"+all_data[i].teachername+"</td><td><select class='"+all_data[i].id+" form-control>";
                                  tablerow_ends = "</select></td><td><button class='btn btn-danger' onclick='deleteassignedteacher("+all_data[i].id+")'>Delete</button></td></tr>";
                                     for(var j =0;j<teachers.length;j++)
                                     {
@@ -941,7 +941,7 @@ function deleteassignedteacher(id)
                            {
                                for(var i=0;i<data['data'].length;i++)
                                {
-                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+all_data[i].id+"></td><td>"+all_data[i].secname+"</td><td>"+all_data[i].advisorname+"</td><td><select class='"+all_data[i].id+" drop'>";
+                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+all_data[i].id+"></td><td>"+all_data[i].secname+"</td><td>"+all_data[i].advisorname+"</td><td><select class='"+all_data[i].id+" form-control'>";
                                  tablerow_ends = "</select></td><td><button class='btn btn-danger' onclick='deleteassignedadvisor("+all_data[i].id+")'>Disable</button></td></tr>";
                                  var tblcontent=' ';
                                  for(var j =0;j<teachers.length;j++)
@@ -953,7 +953,7 @@ function deleteassignedteacher(id)
                               var unmark = data['unmarked'];
                                for(var i=0;i<unmark.length;i++)
                                {
-                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+unmark[i].id+"></td><td>"+unmark[i].secname+"</td><td>----------</td><td><select id='"+unmark[i].id+"' class='drop'>";
+                                tablerow_start = "<tr><td><input type='checkbox' name='updatesectionadvisor[]' value="+unmark[i].id+"></td><td>"+unmark[i].secname+"</td><td>----------</td><td><select id='"+unmark[i].id+"' class='form-control'>";
                                 tablerow_ends = "</select></td><td><button class='btn btn-success' onclick='enablesectiondadvisor("+unmark[i].id+")'>Enable</button></td></tr>";
                                     for(var j =0;j<teachers.length;j++)
                                     {

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserSectionsTable extends Migration
+class CreateMaxStudentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateUserSectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_sections', function (Blueprint $table) {
+        Schema::create('max_students', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('user_id')->unsigned();
-            $table->foreign('user_id')->references('user_id')->on('users');
-            $table->integer('section_id')->unsigned()->nullable();
+            $table->integer('section_id')->unsigned();
             $table->foreign('section_id')->references('id')->on('sections');
+            $table->integer('max_student');
         });
     }
 
@@ -29,6 +28,6 @@ class CreateUserSectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_sections');
+        Schema::dropIfExists('max_students');
     }
 }

@@ -21,6 +21,8 @@ class CreateSessiondatasTable extends Migration
             $table->foreign('subject_id')->references('id')->on('subjects');
             $table->integer('section_id')->unsigned();
             $table->foreign('section_id')->references('id')->on('sections');
+            $table->integer('semester_id')->unsigned();
+            $table->foreign('semester_id')->references('id')->on('semesters');
             /* 
                 `type` = 0 regular
                 `type` = 1 retake
@@ -36,8 +38,8 @@ class CreateSessiondatasTable extends Migration
             $table->float('ct')->nullable();
             $table->float('mid')->nullable();
             $table->float('final')->nullable();
-            $table->string('grade');
-            $table->float('cgpa');
+            $table->string('grade')->nullable();
+            $table->float('cgpa')->nullable();
         });
     }
 

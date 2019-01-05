@@ -101,7 +101,7 @@ class admincoursecontroller extends Controller
         return $data;
     }
 
-    public function showsubjects_ajax($id,Request $request)
+    public function showsubjects_ajax($id)
     {
         $subjects = DB::table('subjects')
             ->where('semester_id',$id)

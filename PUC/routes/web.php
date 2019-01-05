@@ -45,3 +45,18 @@ Route::post('deleteassignedadvisor/{id}','adminsessioncontroller@deleteassigneda
 Route::post('enablesectiondadvisor/{id}','adminsessioncontroller@enablesectiondadvisor_ajax');
 Route::post('updateselectedadvisor','adminsessioncontroller@updateselectedadvisor_ajax');
 //SESSION ENDS
+//Result
+Route::resource('result','adminresultcontroller');
+Route::get('sectionlist','adminresultcontroller@sectionlist_ajax');
+Route::get('showstudents/{id}','adminresultcontroller@showstudents_ajax');
+Route::get('getstudentresult/{id}/{semester}','adminresultcontroller@getstudentresult_ajax');
+Route::get('showretake/{id}','adminresultcontroller@showretake_ajax');
+//RESULT ENDS
+//STUDENT ENROLLMENT
+Route::resource('enrollment','studentenrollmentcontroller');
+Route::get('studentshowsubjects/{id}','studentenrollmentcontroller@showsubjects_ajax');
+Route::get('studentshowpending','studentenrollmentcontroller@studentshowpending_ajax');
+Route::get('showapproved','studentenrollmentcontroller@showapproved_ajax');
+Route::post('deletepending/{id}','studentenrollmentcontroller@deletepending_ajax');
+Route::post('postenroll','studentenrollmentcontroller@postenroll_ajax');
+//STUDENT ENROLLMENT ENDS

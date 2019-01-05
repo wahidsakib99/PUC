@@ -281,6 +281,8 @@ class adminsessioncontroller extends Controller
                 $data['insert'] = true;
                 DB::table('sections')
                     ->update(['session_id' => null]);
+                DB::table('user_sections')
+                    ->update(['section_id' => null]);
                 DB::table('teachers')
                     ->update(['session_id' => null]);
             $active_session = DB::table('sessions')->where('active',1)->first();

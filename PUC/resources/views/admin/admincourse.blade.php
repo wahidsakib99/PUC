@@ -72,7 +72,7 @@ Course
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <select class="drop" name="semester" id="value_of_semester">
+                        <select class="form-control" name="semester" id="value_of_semester">
                         </select>
                         <br />
                         <br />
@@ -196,6 +196,7 @@ Course
                        list = list+"<li onclick='showsubjects("+semesters_var[i].id+")'><a>"+sup(semesters_var[i].name)+"</a></li>";
                        option=option+"<option value="+semesters_var[i].id+">"+sup(semesters_var[i].name)+" Semester</option>";
                    }
+                   showsubjects(semesters_var[0].id);
                    semester_ul.innerHTML = list;
                    dropdownsemester.innerHTML = option; //SET VALUE SEMESTER DROP DOWN
                }
@@ -223,6 +224,7 @@ Course
                 method:'get',
                 success:function(data)
                 {
+                    console.log(data);
                     var coursetbody = document.getElementById('coursetbody');
                     if(data['nodata'] === false)
                     {
@@ -364,7 +366,7 @@ Course
                 },
                 error:function(e)
                 {
-
+                    console.log(e);
                 },
 
             }
