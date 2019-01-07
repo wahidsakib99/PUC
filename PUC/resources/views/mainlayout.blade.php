@@ -82,18 +82,18 @@
 
                         </li>
                         @if(Session::get('admin') == 1)
-                        <li onclick="location.href='{{route('student.index')}}'" class="{{ Request::is('student') ? 'active' : '' }}">
+                        <li onclick="location.href='#'" class="{{ Request::is('student') ? 'active' : '' }}">
                             <i class="fas fa-user"></i><span class="text">Student</span>
 
                         </li>
                         @endif
                         @if(Session::get('admin') == 1)
-                        <li onclick="location.href='{{route('course.index')}}'" class="{{ Request::is('course/*') ? 'active' : '' }}">
+                        <li onclick="location.href='{{route('course.index')}}'" class="{{ Request::is('course') ? 'active' : '' }}">
                             <i class="fab fa-discourse"></i> <span class="text">Course</span>
                         </li>
                         @endif
                         @if(Session::get('admin') == 1)
-                        <li onclick="location.href='{{route('semester.index')}}'" class="{{ Request::is('semester/*') || Request::is('semester') ? 'active' : '' }}">
+                        <li onclick="location.href='#'" class="{{ Request::is('semester/*') || Request::is('semester') ? 'active' : '' }}">
                             <i class="fas fa-university"></i> <span class="text">Semester</span>
                         </li>
                         @endif
@@ -211,6 +211,14 @@
                         <li onclick="location.href='{{ url('stupayment') }}'" class="{{ Request::is('stupayment') ? 'active' : '' }}">
 
                             <i class="fas fa-credit-card"></i><span class="text">Payment</span>
+
+
+                        </li>
+                        @endif
+                        @if(Session::get('advisor') == 1)
+                        <li onclick="location.href='{{ url('advising') }}'" class="{{ Request::is('advising') ? 'active' : '' }}">
+
+                            <i class="fas fa-user"></i><span class="text">Advising</span>
 
 
                         </li>

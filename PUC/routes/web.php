@@ -15,6 +15,7 @@ Route::get('/', function () {
     return view('login');
 });
 Route::get('login','logincontroller@login');
+Route::get('logout','logincontroller@logout');
 //COURSE
 Route::resource('course','admincoursecontroller');
 Route::get('showsemesters','admincoursecontroller@showsemesters_ajax');
@@ -60,3 +61,12 @@ Route::get('showapproved','studentenrollmentcontroller@showapproved_ajax');
 Route::post('deletepending/{id}','studentenrollmentcontroller@deletepending_ajax');
 Route::post('postenroll','studentenrollmentcontroller@postenroll_ajax');
 //STUDENT ENROLLMENT ENDS
+//ADVISOR 
+Route::resource('advising','advisorcontroller');
+Route::get('showstudentlistforadvisor/{id}','advisorcontroller@showstudentlistforadvisor_ajax');
+Route::get('getsectionlist','advisorcontroller@getsectionlist_ajax');
+Route::get('showapprovedadvisor/{id}','advisorcontroller@showapprovedadvisor_ajax');
+Route::post('acceptpending/{id}','advisorcontroller@acceptpending_ajax');
+Route::post('deletepending/{id}','advisorcontroller@deletepending_ajax');
+Route::post('makepending/{id}','advisorcontroller@makepending_ajax');
+//ADVISOR ENDS

@@ -92,6 +92,8 @@ class adminsessioncontroller extends Controller
         {
             $total_student[$i] = DB::table('sessiondatas')
                                     ->where('session_id',$sessions[$i]->id)
+                                    ->distinct()
+                                    ->pluck('student_id')
                                     ->count();
         }
         if(count($sessions)>0)

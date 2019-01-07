@@ -34,7 +34,7 @@ Enrollment
     <h3 id="semesterno"></h3>
     <ul class="nav nav-tabs">
         <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Semester<span class="caret"></span></a>
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Section<span class="caret"></span></a>
             <ul class="dropdown-menu" id="sectionslist">
             </ul>
         </li>

@@ -179,10 +179,23 @@ class studentenrollmentcontroller extends Controller
 
     public function deletepending_ajax($id)
     {
+        $type = DB::table('sessiondatas')->where('id',$id)
+            ->first();
         DB::table('sessiondatas')
             ->where('id',$id)
+            ->where('student_id',Session::get('user_id'))
             ->delete();
         $data['delete'] = true;
+
+        if($type->type == 1)
+        {
+            DB::table('user_retakes')
+                ->where('subject_id',$type->subject_id)
+                ->where('student_id',$type->student_id)
+                ->where('session_id',$type->session_id)
+                ->where('section_id',$type->section_id)
+                ->delete();
+        }
 
         return $data;
     }
@@ -202,7 +215,7 @@ class studentenrollmentcontroller extends Controller
         {
             $data['nosession'] = false;
             $max_student = DB::table('max_students')->where('section_id',$section)->pluck('max_student')->first();
-            $total_student = DB::table('sessiondatas')->where('session_id',$active_session->id)->where('section_id',$section)->count();
+            $total_student = DB::table('sessiondatas')->where('session_id',$active_session->id)->where('section_id',$section)->distinct()->pluck('student_id')->count();
             
             if($total_student<$max_student)
             {
@@ -225,7 +238,7 @@ class studentenrollmentcontroller extends Controller
                             if($prereq)
                             {
                                 $completed_prereq = DB::table('sessiondatas')->where('student_id',$user_id)->where('subject_id',$prereq)->pluck('cgpa')->first();
-                                if($completed_prereq>0)
+                                if($completed_prereq>0 || $completed_prereq || $completed_prereq != Null)
                                 {
                                     //GOOD... ELIGIBLE TO ENROLL
                                 }
@@ -249,7 +262,7 @@ class studentenrollmentcontroller extends Controller
 
                                 if($exist_subject)
                                 {
-                                    $failed[$count_helper] = 'Cant take '.$sname->name.' as retake or recourse. Its already taken once.';
+                                    $failed[$count_helper] = 'Cant take '.$sname->name.'. Take it as <b>retake or recourse</b>. Its already taken once.';
                                     $count_helper++;
                                     $data['success'] = false;
                                 }
@@ -258,32 +271,7 @@ class studentenrollmentcontroller extends Controller
                                     //nothing
                                 }
                             }
-                            else if($type[$i] == 1)
-                            {
-                                $exist_subject = DB::table('sessiondatas')->where('subject_id',$subject_id[$i])->where('student_id',$user_id)->first();
-                                if($exist_subject)
-                                {
-                                    $retake_count = DB::table('user_retakes')->where('student_id',$user_id)->where('subject_id',$subject_id[$i])->count();
-
-                                    if($retake_count <4)
-                                    {
-                                        //EVERYTHING GOOD.. CAN  RETAKE
-                                    }
-                                    else
-                                    {
-                                        $failed[$count_helper] = 'You cant take '.$sname->name.' as retake. 3rd Attempt is over.';
-                                        $count_helper++;
-                                        $data['success'] = false;
-                                    }
-                                }
-                                else
-                                {
-                                    $failed[$count_helper] = 'You havnt taken '.$sname->name.' previously. So enroll "Regular" For this subject';
-                                    $count_helper++;
-                                    $data['success'] = false;
-                                }
-                            }
-                            else
+                            else if($type[$i] == 2)
                             {
                                 $exist_subject = DB::table('sessiondatas')->where('subject_id',$subject_id[$i])->where('student_id',$user_id)->first();
                                 if($exist_subject)
@@ -299,66 +287,244 @@ class studentenrollmentcontroller extends Controller
                             }
                     }
                 }
-
-
-                if(count($failed)==0)
-                {
-                    $semester_id = DB::table('sections')->where('id',$section)->pluck('semester_id')->first();
-                    for($i=0;$i<count($subject_id);$i++)
-                    {
-                        DB::table('sessiondatas')->insert(
-                            [
-                                'student_id' => $user_id,
-                                'subject_id' => $subject_id[$i],
-                                'section_id' => $section,
-                                'semester_id'=> $semester_id,
-                                'type'       => $type[$i],
-                                'session_id' => $active_session->id,
-                                'pending'    => 0,
-                                'attendance' => Null,
-                                'rora'       => Null,
-                                'ct'         => Null,
-                                'mid'        => Null,
-                                'final'      => Null,
-                                'grade'      => Null,
-                                'cgpa'       => Null,
-                            ]
-                        );
-                    }
-                    $user_section = DB::table('sessiondatas')
-                            ->join('sections','sessiondatas.section_id','=','sections.id')
-                            ->where('sessiondatas.student_id',$user_id)
-                            ->where('sessiondatas.session_id',$active_session->id)
-                            ->orderBy('sections.name','dsc')
-                            ->select('sections.id')
-                            ->first();
-                    $exist_user = DB::table('user_sections')
-                            ->where('user_id',$user_id)
-                            ->first();
-                    if($exist_user)
-                    {
-                        DB::table('user_sections')
-                            ->where('id',$exist_user->id)
-                            ->update(['section_id' => $user_section->id]);
-                    }
-                    else
-                    {
-                        DB::table('user_sections')->insert(
-                            [
-                                'user_id' => $user_id,
-                                'section_id' => $user_section->id,
-                            ]
-                        );
-                    }
-                    $data['section_id'] = $user_section;
-                    $data['success'] = true;
-                   
-                }
             }
             else
             {
                 $data['max'] = true;
             }
+
+
+                            //CHECKING FOR RETAKE
+                            for($i=0;$i<count($subject_id);$i++)
+                            {
+                                if($type[$i] == 1)
+                                {
+                                    $exist_subject = DB::table('sessiondatas')->where('subject_id',$subject_id[$i])->where('student_id',$user_id)->first();
+                                    if($exist_subject)
+                                    {
+                                        $retake_count = DB::table('user_retakes')->where('student_id',$user_id)->where('subject_id',$subject_id[$i])->count();
+            
+                                        if($retake_count == 3)
+                                        {                                   
+                                            $failed[$count_helper] = 'You cant take '.$sname->name.' as retake. 3rd Attempt is over.';
+                                            $count_helper++;
+                                            $data['success'] = false;
+                                        }
+                                        else
+                                        {
+                                           //EVERYTHING GOOD.. CAN  RETAKE
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $failed[$count_helper] = 'You havnt taken '.$sname->name.' previously. So enroll "Regular" For this subject';
+                                        $count_helper++;
+                                        $data['success'] = false;
+                                    }
+                                }
+                            }
+            
+                            //BEGINS INSERTION
+                            if(count($failed)==0)
+                            {
+                                $semester_id = DB::table('sections')->where('id',$section)->pluck('semester_id')->first();
+                                for($i=0;$i<count($subject_id);$i++)
+                                {
+                                    if($type[$i] == 0)
+                                    {
+                                        DB::table('sessiondatas')->insert(
+                                            [
+                                                'student_id' => $user_id,
+                                                'subject_id' => $subject_id[$i],
+                                                'section_id' => $section,
+                                                'semester_id'=> $semester_id,
+                                                'type'       => $type[$i],
+                                                'session_id' => $active_session->id,
+                                                'pending'    => 0,
+                                                'attendance' => Null,
+                                                'rora'       => Null,
+                                                'ct'         => Null,
+                                                'mid'        => Null,
+                                                'final'      => Null,
+                                                'grade'      => Null,
+                                                'cgpa'       => Null,
+                                            ]
+                                        );
+                                    }
+                                    else if($type[$i] == 1)
+                                    {
+                                        //RETAKE
+                                        $exist_previous_data = DB::table('sessiondatas')->where('student_id',$user_id)->where('subject_id',$subject_id[$i])->where('type',4)->first();
+                                        if($exist_previous_data)
+                                        {
+                                            //DELETE PREVIOUS 
+                                            DB::table('sessiondatas')
+                                                    ->where('student_id',$user_id)
+                                                    ->where('subject_id',$subject_id[$i])
+                                                    ->where('type', 1)
+                                                    ->orWhere('type',2)
+                                                    ->delete();
+                                            //INSERT FOR NEW SESSION
+                                            DB::table('sessiondatas')->insert(
+                                                [
+                                                    'student_id' => $user_id,
+                                                    'subject_id' => $subject_id[$i],
+                                                    'section_id' => $section,
+                                                    'semester_id'=> $semester_id,
+                                                    'type'       => 1,
+                                                    'session_id' => $active_session->id,
+                                                    'pending'    => 0,
+                                                    'attendance' => $exist_previous_data->attendance,
+                                                    'rora'       => $exist_previous_data->rora,
+                                                    'ct'         => $exist_previous_data->ct,
+                                                    'mid'        => $exist_previous_data->mid,
+                                                    'final'      => Null,
+                                                    'grade'      => Null,
+                                                    'cgpa'       => Null,
+                                                ]
+                                                );
+                                        }
+                                        else
+                                        {
+                                            $previous_data = DB::table('sessiondatas')->where('student_id',$user_id)->where('subject_id',$subject_id[$i])->where('type',0)->first();
+
+                                            //UPDATE REGULAR SUBJECT TO TYPE 4
+                                            DB::table('sessiondatas')
+                                                    ->where('student_id',$user_id)
+                                                    ->where('subject_id',$subject_id[$i])
+                                                    ->where('type',0)
+                                                    ->update(['type' => 4]);
+                                            //RetakeINSERT
+
+                                            DB::table('sessiondatas')->insert(
+                                                [
+                                                    'student_id' => $user_id,
+                                                    'subject_id' => $subject_id[$i],
+                                                    'section_id' => $section,
+                                                    'semester_id'=> $semester_id,
+                                                    'type'       => 1,
+                                                    'session_id' => $active_session->id,
+                                                    'pending'    => 0,
+                                                    'attendance' => $previous_data->attendance,
+                                                    'rora'       => $previous_data->rora,
+                                                    'ct'         => $previous_data->ct,
+                                                    'mid'        => $previous_data->mid,
+                                                    'final'      => Null,
+                                                    'grade'      => Null,
+                                                    'cgpa'       => Null,
+                                                ]
+                                            );
+                                        }
+
+                                          //USER_RETAKES TABLE E INSERT
+                                          DB::table('user_retakes')->insert(
+                                            [
+                                                'student_id' => $user_id,
+                                                'subject_id' => $subject_id[$i],
+                                                'session_id' => $active_session->id,
+                                                'section_id' => $section,
+                                                'final'      => Null,
+                                            ]
+                                            );
+                                    }
+                                    else
+                                    {
+                                        //RECOURSE
+
+                                        $exist_previous_data = DB::table('sessiondatas')->where('student_id',$user_id)->where('subject_id',$subject_id[$i])->where('type',4)->first();
+
+                                        if($exist_previous_data)
+                                        {
+                                            //DELETE PREVIOUS 
+                                            DB::table('sessiondatas')
+                                                    ->where('student_id',$user_id)
+                                                    ->where('subject_id',$subject_id[$i])
+                                                    ->where('type', 1)
+                                                    ->orWhere('type',2)
+                                                    ->delete();
+                                            //INSERT FOR NEW SESSION
+                                            DB::table('sessiondatas')->insert(
+                                                [
+                                                    'student_id' => $user_id,
+                                                    'subject_id' => $subject_id[$i],
+                                                    'section_id' => $section,
+                                                    'semester_id'=> $semester_id,
+                                                    'type'       => 2,
+                                                    'session_id' => $active_session->id,
+                                                    'pending'    => 0,
+                                                    'attendance' => Null,
+                                                    'rora'       => Null,
+                                                    'ct'         => Null,
+                                                    'mid'        => Null,
+                                                    'final'      => Null,
+                                                    'grade'      => Null,
+                                                    'cgpa'       => Null,
+                                                ]
+                                                );
+                                        }
+                                        else
+                                        {
+                                            //UPDATE REGULAR SUBJECT TO TYPE 4
+                                            DB::table('sessiondatas')
+                                                    ->where('student_id',$user_id)
+                                                    ->where('subject_id',$subject_id[$i])
+                                                    ->where('type',0)
+                                                    ->update(['type' => 4]);
+                                            //RetakeINSERT
+
+                                            DB::table('sessiondatas')->insert(
+                                                [
+                                                    'student_id' => $user_id,
+                                                    'subject_id' => $subject_id[$i],
+                                                    'section_id' => $section,
+                                                    'semester_id'=> $semester_id,
+                                                    'type'       => 2,
+                                                    'session_id' => $active_session->id,
+                                                    'pending'    => 0,
+                                                    'attendance' => Null,
+                                                    'rora'       => null,
+                                                    'ct'         => Null,
+                                                    'mid'        => null,
+                                                    'final'      => Null,
+                                                    'grade'      => Null,
+                                                    'cgpa'       => Null,
+                                                ]
+                                            );
+                                        }
+
+                                    }
+                                }
+                                $user_section = DB::table('sessiondatas')
+                                        ->join('sections','sessiondatas.section_id','=','sections.id')
+                                        ->where('sessiondatas.student_id',$user_id)
+                                        ->where('sessiondatas.session_id',$active_session->id)
+                                        ->orderBy('sections.name','dsc')
+                                        ->select('sections.id')
+                                        ->first();
+                                $exist_user = DB::table('user_sections')
+                                        ->where('user_id',$user_id)
+                                        ->first();
+                                if($exist_user)
+                                {
+                                    DB::table('user_sections')
+                                        ->where('id',$exist_user->id)
+                                        ->update(['section_id' => $user_section->id]);
+                                }
+                                else
+                                {
+                                    DB::table('user_sections')->insert(
+                                        [
+                                            'user_id' => $user_id,
+                                            'section_id' => $user_section->id,
+                                        ]
+                                    );
+                                }
+                                $data['section_id'] = $user_section;
+                                $data['success'] = true;
+                               
+                            }
+
+
         }
         else
         {

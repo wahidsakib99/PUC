@@ -789,7 +789,7 @@ function showassignedteacher()
                                 var tbodyofupdateassignedteacher = document.getElementById('updateassignedteachertbody');
                                 for(var i=0;i<all_data.length;i++)
                                 {
-                                 tablerow_start = "<tr><td><input type='checkbox' name='updatesubjectsteacher[]' value="+all_data[i].id+"></td><td>"+all_data[i].subname+"</td><td>"+all_data[i].secname+"</td><td>"+all_data[i].teachername+"</td><td><select class='"+all_data[i].id+" form-control>";
+                                 tablerow_start = "<tr><td><input type='checkbox' name='updatesubjectsteacher[]' value="+all_data[i].id+"></td><td>"+all_data[i].subname+"</td><td>"+all_data[i].secname+"</td><td>"+all_data[i].teachername+"</td><td><select class='"+all_data[i].id+" form-control'>";
                                  tablerow_ends = "</select></td><td><button class='btn btn-danger' onclick='deleteassignedteacher("+all_data[i].id+")'>Delete</button></td></tr>";
                                     for(var j =0;j<teachers.length;j++)
                                     {
