@@ -70,3 +70,50 @@ Route::post('acceptpending/{id}','advisorcontroller@acceptpending_ajax');
 Route::post('deletepending/{id}','advisorcontroller@deletepending_ajax');
 Route::post('makepending/{id}','advisorcontroller@makepending_ajax');
 //ADVISOR ENDS
+//TEACHER STUDENT
+Route::resource('/teacher/students','teacherstudentcontroller');
+Route::get('/teacher/getsubjects','teacherstudentcontroller@getsubjects_ajax');
+Route::get('/teacher/getstudentsregular','teacherstudentcontroller@getstudentsregular_ajax');
+Route::get('teacher/getstudentsretake','teacherstudentcontroller@getstudentsretake_ajax');
+Route::get('/teacher/getstudentsrecourse','teacherstudentcontroller@getstudentsrecourse_ajax');
+Route::post('/teacher/deletesubject','teacherstudentcontroller@deletesubject_ajax');
+//TEACHER STUDENT ENDS
+//TEACHER UPLOAD RESULT
+Route::resource('teacher/upload','teacheruploadresultcontroller');
+//Route::get('/teacher/getsubjects','teacherstudentcontroller@getsubjects_ajax'); /* THIS ROUTE USED PREVIOUSLY */ 
+Route::get('/teacher/getstudents','teacheruploadresultcontroller@getstudents_ajax');
+Route::post('/teacher/postresultregular','teacheruploadresultcontroller@postresultregular_ajax');
+Route::get('/teacher/getretakestudentresult','teacheruploadresultcontroller@getretakestudentresult_ajax');
+Route::post('teacher/postresultretake','teacheruploadresultcontroller@postresultretake_ajax');
+Route::get('teacher/getupdatestudent','teacheruploadresultcontroller@getupdatestudent_ajax');
+Route::post('teacher/restore_regrec/{id}','teacheruploadresultcontroller@restore_regrec_ajax');
+Route::post('teacher/restore_ret/{id}','teacheruploadresultcontroller@restore_ret_ajax');
+//TEACHER UPLOAD RESULT ENDS
+//STUDENT RESULT
+Route::resource('student/result','studentresultcontroller');
+Route::get('student/studentinfo','studentresultcontroller@studentinfo_ajax');
+Route::get('student/getresult/{semester}','studentresultcontroller@getresult_ajax');
+Route::get('student/studentretake','studentresultcontroller@studentretake_ajax');
+Route::get('student/showincomplete','studentresultcontroller@showincomplete_ajax');
+//STUDENT RESULT ENDS
+//PROFILE
+Route::get('student/profile','profilecontroller@studentProfile');
+Route::get('teacher/profile','profilecontroller@teacherProfile');
+Route::get('admin/profile','profilecontroller@adminProfile');
+Route::post('student/saveprofile/{profileid}/','profilecontroller@saveprofile');
+//PROFILE ENDS
+//STUDENT PAYMENT CHECKOUT
+ Route::resource('student/reciept','studentpaymentcontroller');
+ Route::get('student/payment/{total}','studentpaymentcontroller@paymentpage');
+ Route::post('/student/payment/post/{total}','studentpaymentcontroller@paymentpost');
+ Route::get('student/makepdf','studentpaymentcontroller@makepdf');
+//STUDENT PAYMENT CHECKOUT ENDS
+//ADMIN SEMESTER
+Route::resource('semester','adminsemestercontroller');
+Route::get('getsemester','adminsemestercontroller@getsemester_ajax');
+Route::post('enabledisable/{id}/{active}','adminsemestercontroller@enabledisable_ajax');
+Route::get('showmodaldata/{id}','adminsemestercontroller@showmodaldata_ajax');
+Route::post('deletesemester/{id}','adminsemestercontroller@deletesemester_ajax');
+Route::post('addsemester','adminsemestercontroller@addsemester');
+//ADMIN SEMESTER ENDS
+

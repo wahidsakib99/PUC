@@ -306,7 +306,7 @@ function showapproved()
                             {
                                 total_cost = total_cost + datas[i].credit*cost.recourse_values;
                             }
-                            tablerow=tablerow+"<tr><td>"+datas[i].subname+"</td><td>"+datas[i].code+"</td><td>"+datas[i].credit+"</td><td>"+type(datas[i].type)+"</td></tr>";
+                            tablerow=tablerow+"<tr><td>"+datas[i].subname+"</td><td>"+datas[i].code+"</td><td>"+datas[i].credit+"</td><td>"+datas[i].secname+"</td><td>"+type(datas[i].type)+"</td></tr>";
                         }
                         document.getElementById('approvedtbody').innerHTML = tablerow+"<tr><td colspan='3'></td><td><label>Total</label></td><td><label>"+total_cost+"/=</label></td></tr>";
                         document.getElementById('approvedtable').style.display='';
@@ -347,10 +347,18 @@ function deletepending(id)
         method:'post',
         success:function(data)
         {
-            if(data['delete'] === true)
+            if(data['user'] === true)
             {
+                if(data['delete'] === true)
+                {
                 showpending();
+                }
             }
+            else
+            {
+                console.log('WELL PLAYED');
+            }
+            
         },
         error:function(e)
         {

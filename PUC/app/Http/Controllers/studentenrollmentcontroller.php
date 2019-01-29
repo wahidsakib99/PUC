@@ -143,12 +143,13 @@ class studentenrollmentcontroller extends Controller
             $data['redirect']=false;
             $active_session = DB::table('sessions')->where('active',1)->first();
             $datas =DB::table('sessiondatas')
-                ->where('session_id',$active_session->id)
-                ->where('student_id',Session::get('user_id'))
                 ->where('pending',1)
                 ->join('subjects','subjects.id','=','sessiondatas.subject_id')
                 ->join('semesters','semesters.id','=','sessiondatas.semester_id')
-                ->select('subjects.name as subname','semesters.name as semname','subjects.code','subjects.credit')
+                ->join('sections','sections.id','sessiondatas.section_id')
+                ->where('sessiondatas.session_id',$active_session->id)
+                ->where('sessiondatas.student_id',Session::get('user_id'))
+                ->select('subjects.name as subname','semesters.name as semname','subjects.code','subjects.credit','sections.name as secname','sessiondatas.type')
                 ->get();
 
             if(count($datas)>0)
@@ -181,22 +182,29 @@ class studentenrollmentcontroller extends Controller
     {
         $type = DB::table('sessiondatas')->where('id',$id)
             ->first();
-        DB::table('sessiondatas')
-            ->where('id',$id)
-            ->where('student_id',Session::get('user_id'))
-            ->delete();
-        $data['delete'] = true;
-
-        if($type->type == 1)
+        if($type->student_id == Session::get('user_id'))
         {
-            DB::table('user_retakes')
-                ->where('subject_id',$type->subject_id)
-                ->where('student_id',$type->student_id)
-                ->where('session_id',$type->session_id)
-                ->where('section_id',$type->section_id)
+            $data['user'] = true;
+            DB::table('sessiondatas')
+                ->where('id',$id)
+                ->where('student_id',Session::get('user_id'))
                 ->delete();
-        }
+            $data['delete'] = true;
 
+            if($type->type == 1)
+            {
+                DB::table('user_retakes')
+                    ->where('subject_id',$type->subject_id)
+                    ->where('student_id',$type->student_id)
+                    ->where('session_id',$type->session_id)
+                    ->where('section_id',$type->section_id)
+                    ->delete();
+            }
+        }
+        else
+        {
+            $data['user'] = false;
+        }
         return $data;
     }
 
