@@ -1,0 +1,44 @@
+body
+{
+}
+.flex-items
+{
+    display: inline-flex;
+}
+.items
+{
+    margin-right: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    color: white;
+    height: 100px;
+    width: 150px;
+
+}
+.items *
+{
+    padding: 10px 10px 10px 10px;
+}
+.control-table-size
+{
+    max-height: 350px;
+    margin-right: 50px;
+    width: 550px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+#firstitem
+{
+    background: rgb(6, 128, 209);
+}
+#seconditem
+{
+    background: rgb(230, 103, 103);
+}
+#thirditem
+{
+    background: rgb(48, 48, 48);
+}
+.table-head
+{
+    background: rgb(136, 178, 226);
+}
