@@ -90,7 +90,13 @@ class admindashboardcontroller extends Controller
     }
     public function s_dashboard()
     {
-        return view('student.studentdashboard');
+        $active_session = DB::table('sessions')->where('active',1)->first();
+        $enrolled_for = DB::table('sessiondatas')->where('session_id',$active_session->id)
+                        ->where('student_id',Session::get('user_id'))
+                        ->count();
+        $data['session'] = $active_session;
+        $data['enrolled'] = $enrolled_for;
+        return view('student.studentdashboard')->with('data',$data);
     }
 
     public function getfirstrow_ajax()
@@ -290,5 +296,11 @@ class admindashboardcontroller extends Controller
             DB::table('pre_reqs')->where('subject_id',$id)->delete();
         }
         
+    }
+
+    public function getstudentdashdata_ajax()
+    {
+        $active_session = DB::table('sessions')->where('active',1)->first();
+        $user_id = Session::get('user_id');
     }
 }

@@ -62,13 +62,13 @@ Route::post('deletepending/{id}','studentenrollmentcontroller@deletepending_ajax
 Route::post('postenroll','studentenrollmentcontroller@postenroll_ajax');
 //STUDENT ENROLLMENT ENDS
 //ADVISOR 
-Route::resource('advising','advisorcontroller');
-Route::get('showstudentlistforadvisor/{id}','advisorcontroller@showstudentlistforadvisor_ajax');
-Route::get('getsectionlist','advisorcontroller@getsectionlist_ajax');
-Route::get('showapprovedadvisor/{id}','advisorcontroller@showapprovedadvisor_ajax');
-Route::post('acceptpending/{id}','advisorcontroller@acceptpending_ajax');
-Route::post('deletepending/{id}','advisorcontroller@deletepending_ajax');
-Route::post('makepending/{id}','advisorcontroller@makepending_ajax');
+Route::resource('teacher/advising','advisorcontroller');
+Route::get('teacher/showstudentlistforadvisor/{id}','advisorcontroller@showstudentlistforadvisor_ajax');
+Route::get('teacher/getsectionlist','advisorcontroller@getsectionlist_ajax');
+Route::get('teacher/showapprovedadvisor/{id}','advisorcontroller@showapprovedadvisor_ajax');
+Route::post('teacher/acceptpending/{id}','advisorcontroller@acceptpending_ajax');
+Route::post('teacher/deletepending/{id}','advisorcontroller@deletepending_ajax');
+Route::post('teacher/makepending/{id}','advisorcontroller@makepending_ajax');
 //ADVISOR ENDS
 //TEACHER STUDENT
 Route::resource('/teacher/students','teacherstudentcontroller');
@@ -132,6 +132,7 @@ Route::post('deleteprereq/{id}','admindashboardcontroller@deleteprereq_ajax');
 //ADMIN DASHBOARD ENDS
 //STUDENT DASHBOARD
 Route::get('student/dashboard','admindashboardcontroller@s_dashboard');
+Route::get('student/getstudentdashdata','admindashboardcontroller@getstudentdashdata_ajax');
 //STUDENT DASHBOARD ENDS
 //TEACHER DASHBOARD
 Route::get('teacher/dashboard','admindashboardcontroller@t_dashboard');
